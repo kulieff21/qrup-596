@@ -33,7 +33,7 @@
   --acc-line: oklch(0.8 0.115 var(--hue) / 0.35);
 
   --f-display: "Fraunces", "Iowan Old Style", Georgia, serif;
-  --f-body: "Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
 
   --r-sm: 8px;
