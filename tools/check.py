@@ -66,6 +66,13 @@ def main() -> int:
                 ids = parsed[target].ids if target in parsed else set()
                 if parts.fragment not in ids:
                     problems.append(f"{rel}: missing anchor '{ref}'")
+    # every animation the CSS uses must have its @keyframes (a missing one leaves the start state, often invisible)
+    for css in sorted(SITE.rglob("*.css")):
+        text = css.read_text(encoding="utf-8")
+        used = set(re.findall(r"animation(?:-name)?:\s*([a-z][\w-]*)", text)) - {"none"}
+        defined = set(re.findall(r"@keyframes\s+([\w-]+)", text))
+        for name in sorted(used - defined):
+            problems.append(f"{css.relative_to(ROOT)}: animation '{name}' has no @keyframes")
     if problems:
         print("CHECK FAILED\n  " + "\n  ".join(problems))
         return 1

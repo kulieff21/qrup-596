@@ -248,8 +248,9 @@
     if (!svg || !motionOn()) return;
     const [L, W, H, yaw0, elev0, yMin, yMax, eMin, eMax] = svg.dataset.bus.split(" ").map(Number);
     const q = (sel) => svg.querySelector(sel);
-    const side = q(".bus-side"), front = q(".bus-front"), roof = q(".bus-roof");
-    const sideG = q(".bus-side-g"), frontG = q(".bus-front-g"), shadow = q(".bus-shadow"), rig = q(".bus-rig");
+    const side = q(".bus-side:not(.bus-right)"), right = q(".bus-right"), front = q(".bus-front"), roof = q(".bus-roof");
+    const sideG = q(".bus-side-g"), rightG = q(".bus-right-g"), frontG = q(".bus-front-g");
+    const shadow = q(".bus-shadow"), rig = q(".bus-rig");
     const rad = Math.PI / 180;
     const cur = { yaw: yaw0, elev: elev0, lean: 0 }, vel = { yaw: 0, elev: 0, lean: 0 };
     const goal = { yaw: yaw0, elev: elev0, lean: 0 };
@@ -272,6 +273,11 @@
       front.setAttribute("points", pts(P(0, 0, 0), P(0, W, 0), P(0, W, H), P(0, 0, H)));
       roof.setAttribute("points", pts(P(0, 0, H), P(0, W, H), P(L, W, H), P(L, 0, H)));
       sideG.setAttribute("transform", mat(P(L, 0, H), [-U[0], -U[1]], down));
+      right.setAttribute("points", pts(P(0, W, 0), P(L, W, 0), P(L, W, H), P(0, W, H)));
+      rightG.setAttribute("transform", mat(P(0, W, H), U, down));
+      const leftSide = Math.cos(t) < 0;          // which long side faces the camera
+      for (const el of [side, sideG]) el.setAttribute("display", leftSide ? "inline" : "none");
+      for (const el of [right, rightG]) el.setAttribute("display", leftSide ? "none" : "inline");
       frontG.setAttribute("transform", mat(P(0, 0, H), V, down));
       const g = P(L / 2, W / 2, 0);
       shadow.setAttribute("cx", f(g[0]));
@@ -285,7 +291,7 @@
       prev = now;
       if (now - lastMove > 3500) {             // idle: look around slowly
         const k = now / 1000;
-        goal.yaw = yaw0 + Math.sin(k * 0.45) * 16 + Math.sin(k * 0.17) * 6;
+        goal.yaw = 110 + Math.sin(k * 0.38) * 42 + Math.sin(k * 0.13) * 8;   // swings past 90°: both sides show
         goal.elev = elev0 + Math.sin(k * 0.31) * 4;
       }
       goal.lean *= Math.pow(0.02, dt);          // lean fades out in about a second

@@ -18,7 +18,7 @@ Projection (must match busRig in main.js):
     V (one unit across the front) = (cos(t - 90°), -sin(t - 90°) * sin e)
     Y (one unit up)               = (0, -cos e)
     screen(x, z, y) = O + x*U + z*V + y*Y, with O chosen so the box centre lands on CENTER.
-The left side and the front stay visible for 90° < t < 180°.
+The front is visible for 0° < t < 180°; the left side for t > 90°, the right side for t < 90°.
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ import math
 
 L, W, H = 220, 135, 116            # length, width, height (stylised: short, wide, tall = friendly)
 YAW, ELEV = 135.0, 14.5            # rest pose, degrees
-YAW_RANGE, ELEV_RANGE = (104.0, 166.0), (4.0, 28.0)   # what busRig may reach
+YAW_RANGE, ELEV_RANGE = (28.0, 162.0), (4.0, 28.0)    # what busRig may reach
 CENTER = (0.0, 0.0)                # screen position of the box centre (viewBox is built around it)
 
 
@@ -64,6 +64,9 @@ def pose(t: float = YAW, e: float = ELEV) -> dict:
     down = (-Y[0], -Y[1])
     return {
         "side": poly([P(0, 0, 0), P(L, 0, 0), P(L, 0, H), P(0, 0, H)]),
+        "right": poly([P(0, W, 0), P(L, W, 0), P(L, W, H), P(0, W, H)]),
+        "right_m": matrix(P(0, W, H), U, down),                 # local x: front -> back
+        "left_visible": math.cos(math.radians(t)) < 0,
         "front": poly([P(0, 0, 0), P(0, W, 0), P(0, W, H), P(0, 0, H)]),
         "roof": poly([P(0, 0, H), P(0, W, H), P(L, W, H), P(L, 0, H)]),
         "side_m": matrix(P(L, 0, H), (-U[0], -U[1]), down),    # local x: back -> front
@@ -96,7 +99,9 @@ def bus_big(cls: str = "bus-big") -> str:
         for x in range(10, door_x - 34, 39))
     wheel = lambda cx: (f'<g class="bus-wheel"><circle cx="{cx}" cy="{H}" r="18"/>'
                         f'<circle class="bus-hub" cx="{cx}" cy="{H}" r="6.5"/></g>')
-    side = (f'<g class="bus-side-g" transform="{g["side_m"]}">'
+    left_hidden = "" if g["left_visible"] else ' display="none"'
+    right_hidden = ' display="none"' if g["left_visible"] else ""
+    side = (f'<g class="bus-side-g" transform="{g["side_m"]}"{left_hidden}>'
             f'<path class="bus-roof-rim" d="M4 6H{L - 4}"/>'
             f'{win}'
             f'<rect class="bus-door" x="{door_x}" y="16" width="33" height="84" rx="5"/>'
@@ -105,6 +110,19 @@ def bus_big(cls: str = "bus-big") -> str:
             f'<text class="bus-side-num" x="{(door_x - 4) / 2:.0f}" y="94" text-anchor="middle">596</text>'
             f'{wheel(46)}{wheel(L - 74)}'
             f'</g>')
+    # right side, the mirror image: local x runs front -> back, so the door sits at the left end
+    rwin = "".join(
+        f'<rect class="bus-glass" x="{L - x - 31}" y="16" width="31" height="36" rx="5"/>'
+        for x in range(10, door_x - 34, 39))
+    right = (f'<g class="bus-right-g" transform="{g["right_m"]}"{right_hidden}>'
+             f'<path class="bus-roof-rim" d="M4 6H{L - 4}"/>'
+             f'{rwin}'
+             f'<rect class="bus-door" x="{L - door_x - 33}" y="16" width="33" height="84" rx="5"/>'
+             f'<path class="bus-door-line" d="M{L - door_x - 16.5} 20v76"/>'
+             f'<path class="bus-stripe" d="M{L - door_x + 10} 66H{L - 8}"/>'
+             f'<text class="bus-side-num" x="{L - (door_x - 4) / 2:.0f}" y="94" text-anchor="middle">596</text>'
+             f'{wheel(74)}{wheel(L - 46)}'
+             f'</g>')
     # front face drawing, local coords 0..W x 0..H
     m = W / 2
     eye_y, eyes_x = 48, (m - 27, m + 27)
@@ -126,10 +144,11 @@ def bus_big(cls: str = "bus-big") -> str:
     return (f'<svg class="{cls}" data-owl="4" data-bus="{data}" viewBox="{viewbox()}" fill="none" aria-hidden="true">'
             f'<ellipse class="bus-shadow" cx="{sx:.1f}" cy="{sy + 16:.1f}" rx="{L * 0.62:.0f}" ry="24"/>'
             f'<g class="bus-rig"><g class="bus-body">'
-            f'<polygon class="bus-side" points="{g["side"]}"/>'
+            f'<polygon class="bus-side" points="{g["side"]}"{left_hidden}/>'
+            f'<polygon class="bus-side bus-right" points="{g["right"]}"{right_hidden}/>'
             f'<polygon class="bus-roof" points="{g["roof"]}"/>'
             f'<polygon class="bus-front" points="{g["front"]}"/>'
-            f'{side}{front}'
+            f'{side}{right}{front}'
             f'</g></g></svg>')
 
 
