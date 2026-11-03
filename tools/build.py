@@ -21,6 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from md import ContentError, Context, render, inline, slugify  # noqa: E402
+from bus import bus_big, bus_small  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTENT = ROOT / "content"
@@ -384,15 +385,8 @@ def icon(name: str, cls: str = "icon") -> str:
 
 
 def logo_mark(cls: str = "logo-mark", eyes: bool = False) -> str:
-    """The owl: two ringed eyes under a brow that rises into ear tufts, and a small beak."""
-    pupils = ('<g class="owl-pupils"><circle class="owl-pupil" cx="22" cy="34" r="4.2"/>'
-              '<circle class="owl-pupil" cx="42" cy="34" r="4.2"/></g>')
-    data = ' data-owl' if eyes else ""
-    return (f'<svg class="{cls}"{data} viewBox="0 0 64 64" fill="none" aria-hidden="true">'
-            '<path class="owl-brow" d="M6 13.5L20 22.5Q32 17 44 22.5L58 13.5" />'
-            '<g class="owl-lids"><circle class="owl-eye" cx="22" cy="34" r="11"/>'
-            '<circle class="owl-eye" cx="42" cy="34" r="11"/></g>'
-            f'{pupils}<path class="owl-beak" d="M32 44.5l-3 4.5 3 5 3-5z"/></svg>')
+    """The 596 bus, flat front view (header, footer, empty states). The hero uses bus_big()."""
+    return bus_small(cls, eyes)
 
 
 def fmt_minutes(m: int) -> str:
@@ -528,7 +522,7 @@ def home_page(courses: list[Course]) -> str:
     </div>
     <div class="hero-owl" data-rise style="--d:2">
       <div class="owl-halo" aria-hidden="true"></div>
-      {logo_mark("owl-big", eyes=True)}
+      {bus_big()}
       <div class="orbit orbit-1" aria-hidden="true"><span></span></div>
       <div class="orbit orbit-2" aria-hidden="true"><span></span></div>
     </div>

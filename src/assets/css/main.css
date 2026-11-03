@@ -124,17 +124,14 @@ kbd {
 
 /* ------------------------------------------------------------ logo */
 
-.logo-mark, .owl-big, .empty-owl { overflow: visible; }
+.logo-mark, .bus-big, .empty-owl { overflow: visible; }
 .logo-mark { width: 30px; height: 30px; }
-.owl-brow, .owl-eye {
-  stroke: currentColor;
-  stroke-width: 3.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.owl-pupil, .owl-beak { fill: var(--amber); }
+/* small bus (header, footer, empty states): line art in the text colour, amber sign and pupils */
+.bus-s-body, .bus-s-line, .bus-s-wheel, .owl-eye { stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.bus-s-sign { stroke: var(--amber); stroke-width: 3.2; stroke-linecap: round; }
+.owl-pupil { fill: var(--amber); }
 .owl-pupils { transition: transform 0.35s var(--ease-out); }
-.owl-lids, .owl-pupils { transform-box: view-box; transform-origin: 32px 34px; }
+.owl-lids, .owl-pupils { transform-box: fill-box; transform-origin: center; }
 .owl-blink .owl-lids, .owl-blink .owl-pupils { animation: blink 0.28s var(--ease-in-out); }
 @keyframes blink { 50% { transform: scaleY(0.08); } }
 
@@ -367,16 +364,35 @@ body:not(.page-lesson) .read-progress { display: none; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; }
 
 .hero-owl { position: relative; aspect-ratio: 1; display: grid; place-items: center; max-width: 460px; justify-self: center; width: 100%; }
-.owl-big { width: 58%; height: auto; color: var(--text); position: relative; z-index: 2; filter: drop-shadow(0 0 40px rgba(242, 179, 91, 0.12)); }
-.owl-big .owl-brow, .owl-big .owl-eye { stroke-width: 2.4; }
-.owl-big .owl-pupil { filter: drop-shadow(0 0 3px rgba(242, 179, 91, 0.9)); }
-.js .owl-big .owl-brow, .js .owl-big .owl-eye { stroke-dasharray: 120; stroke-dashoffset: 120; }
-.is-ready .owl-big .owl-brow, .is-ready .owl-big .owl-eye { animation: draw 2.2s var(--ease-out) 0.35s forwards; }
-.is-ready .owl-big .owl-eye:nth-child(2) { animation-delay: 0.55s; }
-.js .owl-big .owl-pupil, .js .owl-big .owl-beak { opacity: 0; transform-box: fill-box; transform-origin: center; transform: scale(0); }
-.is-ready .owl-big .owl-pupil, .is-ready .owl-big .owl-beak { animation: pop 0.9s var(--spring) 1.5s forwards; }
-@keyframes draw { to { stroke-dashoffset: 0; } }
-@keyframes pop { to { opacity: 1; transform: scale(1); } }
+/* hero bus: amber city bus in 3/4 view; faces are flat drawings mapped onto the box */
+.bus-big { width: 86%; height: auto; position: relative; z-index: 2; filter: drop-shadow(0 18px 40px rgba(242, 179, 91, 0.14)); }
+.bus-big .bus-side { fill: #c4843a; }
+.bus-big .bus-front { fill: var(--amber); }
+.bus-big .bus-roof { fill: var(--amber-2); }
+.bus-big .bus-side, .bus-big .bus-front, .bus-big .bus-roof { stroke: #2a1c0a; stroke-width: 2.2; stroke-linejoin: round; }
+.bus-big .bus-glass, .bus-big .bus-windshield { fill: #18202d; stroke: #2a1c0a; stroke-width: 2; }
+.bus-big .bus-windshield { fill: #121925; }
+.bus-big .bus-door { fill: #18202d; stroke: #2a1c0a; stroke-width: 2; }
+.bus-big .bus-door-line { stroke: #2f3a4b; stroke-width: 2; }
+.bus-big .bus-roof-rim { stroke: #fff0cf; stroke-width: 2.4; stroke-linecap: round; opacity: 0.55; }
+.bus-big .bus-stripe { stroke: #2a1c0a; stroke-width: 3; stroke-linecap: round; opacity: 0.55; }
+.bus-big .bus-side-num { font-family: var(--f-display); font-weight: 700; font-size: 30px; fill: #2a1c0a; letter-spacing: 0.02em; }
+.bus-big .bus-sign { fill: #0d1118; stroke: #2a1c0a; stroke-width: 2; }
+.bus-big .bus-sign-num { font-family: var(--f-mono); font-weight: 700; font-size: 16px; letter-spacing: 0.12em; fill: var(--amber-2); filter: drop-shadow(0 0 3px rgba(255, 208, 138, 0.9)); }
+.bus-big .owl-eye { fill: var(--text); stroke: #2a1c0a; stroke-width: 2.2; }
+.bus-big .owl-pupil { fill: #1a1206; }
+.bus-big .bus-glint { fill: #fff; }
+.bus-big .bus-smile { stroke: #2a1c0a; stroke-width: 2.6; stroke-linecap: round; }
+.bus-big .bus-light { fill: #fff3d6; stroke: #2a1c0a; stroke-width: 2; }
+.bus-big .bus-bumper { fill: #2a1c0a; }
+.bus-big .bus-wheel circle { fill: #141820; stroke: #2a1c0a; stroke-width: 2; }
+.bus-big .bus-wheel .bus-hub { fill: #5b6475; }
+.bus-big .bus-shadow { fill: rgba(0, 0, 0, 0.45); filter: blur(6px); }
+.bus-big .bus-body { animation: bus-idle 2.8s var(--ease-in-out) infinite; }
+@keyframes bus-idle { 50% { transform: translateY(-2.5px); } }
+.js .bus-big { opacity: 0; transform: translateX(-60px); }
+.is-ready .bus-big { animation: bus-arrive 1.4s var(--ease-out) 0.3s forwards; }
+@keyframes bus-arrive { 70% { opacity: 1; transform: translateX(6px); } to { opacity: 1; transform: none; } }
 .owl-halo {
   position: absolute;
   inset: 16%;
@@ -697,7 +713,7 @@ body:not(.page-lesson) .read-progress { display: none; }
 .empty { position: relative; text-align: center; padding: 64px 32px 48px; border: 1px dashed var(--line-2); border-radius: var(--r-lg); background: radial-gradient(600px 300px at 50% 0%, var(--acc-soft), transparent 70%), var(--bg-2); overflow: hidden; }
 .empty-art { position: relative; width: 140px; height: 140px; margin: 0 auto 26px; display: grid; place-items: center; }
 .empty-owl { width: 76px; color: var(--text-2); position: relative; z-index: 1; }
-.empty-owl .owl-brow, .empty-owl .owl-eye { stroke-width: 2.6; }
+.empty-owl .owl-eye, .empty-owl .bus-s-body { stroke-width: 2.6; }
 .empty-ring { position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--acc-line); animation: ripple 3.6s var(--ease-out) infinite; }
 .empty-ring.r2 { animation-delay: 1.8s; }
 @keyframes ripple { 0% { transform: scale(0.55); opacity: 0.9; } 100% { transform: scale(1.35); opacity: 0; } }
@@ -1001,7 +1017,8 @@ body:not(.page-lesson) .read-progress { display: none; }
   .is-featured .course-card { grid-template-columns: 1fr; }
   .is-featured .cc-visual { display: none; }
   .is-featured .cc-top .cc-icon { display: grid; }
-  .hero-inner { grid-template-columns: 1fr; }
+  .hero-inner { grid-template-columns: minmax(0, 1fr); }
+  .hero-copy { min-width: 0; }
   .hero-owl { max-width: 280px; order: -1; }
   .stats { grid-template-columns: repeat(2, 1fr); }
   .stat:nth-child(3) { border-left: 0; }
@@ -1028,6 +1045,9 @@ body:not(.page-lesson) .read-progress { display: none; }
   .method { grid-template-columns: 1fr; gap: 32px 0; }
   .method-step { padding-right: 0; }
   .match-score, .fc-count { white-space: nowrap; }
+  .hero-actions .btn { width: 100%; max-width: 100%; min-width: 0; }
+  .btn[data-resume] { justify-content: flex-start; white-space: nowrap; }
+  .btn .resume-title { flex: 1 1 0; min-width: 0; max-width: none; }
 }
 
 /* ------------------------------------------------------------ reduced motion */

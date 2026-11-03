@@ -209,7 +209,7 @@
     return start;
   }
 
-  /* ---------------------------------------------------------------- owl eyes */
+  /* ---------------------------------------------------------------- mascot eyes (the 596 bus) */
 
   function owls() {
     const list = $$("[data-owl]");
@@ -221,7 +221,7 @@
         const cx = r.left + r.width / 2, cy = r.top + r.height * 0.53;
         const dx = e.clientX - cx, dy = e.clientY - cy;
         const d = Math.hypot(dx, dy) || 1;
-        const k = Math.min(1, d / 260) * 4.6;
+        const k = Math.min(1, d / 260) * (parseFloat(svg.dataset.owl) || 4.6);
         const p = $(".owl-pupils", svg);
         p.style.transform = `translate(${(dx / d) * k}px, ${(dy / d) * k}px)`;
       });
