@@ -42,6 +42,10 @@ ICONS = {
     "network": '<circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4.5M12 12l-5.5 5M12 12l5.5 5"/>',
     "book": '<path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5c-.8 0-1.5-.7-1.5-1.5zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v16h5.5c.8 0 1.5-.7 1.5-1.5z"/>',
     "compass": '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+    "lines-short": '<path d="M5 9h14M5 14h8"/>',
+    "lines-mid": '<path d="M5 7h14M5 12h14M5 17h9"/>',
+    "lines-long": '<path d="M5 5h14M5 9.5h14M5 14h14M5 18.5h10"/>',
+    "glossary": '<path d="M4 19.5l4.5-13 4.5 13M5.6 15h5.8"/><path d="M15 9h5M15 13h5M15 17h3"/>',
     "spark": '<path d="M12 3.5c.6 4.6 1.9 5.9 6.5 6.5-4.6.6-5.9 1.9-6.5 6.5-.6-4.6-1.9-5.9-6.5-6.5 4.6-.6 5.9-1.9 6.5-6.5z"/><path d="M18.5 15.5v4M16.5 17.5h4"/>',
 }
 
@@ -59,6 +63,8 @@ class Unit:
     lessons: list = field(default_factory=list)
     exam: dict | None = None                      # planned end-of-unit exam: {"title", "questions"}
     bank: dict | None = None
+    icon: str = "book"                            # tracks layout: icon on the track card
+    kicker: str = ""                              # tracks layout: small label above the track title
 
     @property
     def items(self) -> list:
@@ -108,6 +114,7 @@ class Course:
     sources: list
     units: list
     ordered: bool = True                          # False: no unit/lesson numbers, lessons show their kind
+    layout: str = "units"                         # "tracks": units are parallel paths (e.g. short/long) shown as cards
     lessons: list = field(default_factory=list)
 
     @property
@@ -166,7 +173,10 @@ def load_course(d: Path) -> Course:
         fail(path, f"invalid TOML: {e}")
     check_keys(data, {"title": str, "kicker": str, "summary": str},
                {"hue": int, "icon": str, "order": int, "tags": list, "hidden": bool,
-                "unit": list, "source": list, "ordered": bool}, path, "course")
+                "unit": list, "source": list, "ordered": bool, "layout": str}, path, "course")
+    layout = data.get("layout", "units")
+    if layout not in ("units", "tracks"):
+        fail(path, f"layout '{layout}' is unknown; use 'units' or 'tracks'")
     ordered = data.get("ordered", True)
     icon = data.get("icon", "book")
     if icon not in ICONS:
@@ -175,7 +185,9 @@ def load_course(d: Path) -> Course:
     seen = set()
     planned_ids = set()
     for k, u in enumerate(data.get("unit", []), 1):
-        check_keys(u, {"id": str, "title": str}, {"summary": str, "lesson": list, "exam": dict}, path, f"unit[{k}]")
+        check_keys(u, {"id": str, "title": str}, {"summary": str, "lesson": list, "exam": dict, "icon": str, "kicker": str}, path, f"unit[{k}]")
+        if u.get("icon", "book") not in ICONS:
+            fail(path, f"unit[{k}]: icon '{u['icon']}' is unknown; use one of {sorted(ICONS)}")
         if not SLUG.match(u["id"]) or u["id"] in seen:
             fail(path, f"unit[{k}]: id '{u['id']}' must be a unique slug")
         seen.add(u["id"])
@@ -196,12 +208,14 @@ def load_course(d: Path) -> Course:
         if "exam" in u:
             check_keys(u["exam"], {}, {"title": str, "questions": str}, path, f"unit '{u['id']}' exam")
             exam = {"title": u["exam"].get("title", "Bölmə imtahanı"), "questions": u["exam"].get("questions", "")}
-        units.append(Unit(u["id"], u["title"], u.get("summary", ""), plan, exam=exam))
+        units.append(Unit(u["id"], u["title"], u.get("summary", ""), plan, exam=exam,
+                          icon=u.get("icon", "book"), kicker=u.get("kicker", "")))
     return Course(
         slug=d.name, dir=d, title=data["title"], kicker=data["kicker"], summary=data["summary"],
         hue=data.get("hue", 250) % 360, icon=icon, order=data.get("order", 100),
         tags=[str(t) for t in data.get("tags", [])], hidden=data.get("hidden", False),
         sources=load_sources(data.get("source"), path, "source"), units=units, ordered=ordered,
+        layout=layout,
     )
 
 
@@ -265,6 +279,10 @@ def load_all() -> list[Course]:
                 fail(d, f"unit '{u.id}' has lessons with the same 'order'")
             u.lessons.sort(key=lambda l: l.order)
         course.lessons = [l for u in course.units for l in u.lessons]
+        if course.layout == "tracks":
+            clash = {u.id for u in course.units} & {l.slug for l in course.lessons} | ({u.id for u in course.units} & {"exams", "media"})
+            if clash:
+                fail(d / "course.toml", f"tracks layout: unit id(s) {sorted(clash)} collide with a lesson slug or a reserved folder")
         exams_dir = d / "exams"
         if exams_dir.exists():
             for path in sorted(exams_dir.iterdir()):
@@ -553,7 +571,125 @@ def home_page(courses: list[Course]) -> str:
     return page("Qrup 596", body, 0, "page-home", extra_head="")
 
 
+def track_target(u: Unit) -> str:
+    """Where a track card points, relative to the course folder: a one-lesson track opens it directly."""
+    items = u.items
+    if len(items) == 1 and items[0][1]:
+        return f"{items[0][1].slug}/index.html"
+    return f"{u.id}/index.html"
+
+
+def track_minutes(u: Unit) -> int:
+    return sum(l.minutes for l in u.lessons)
+
+
+def tracks_course_page(c: Course) -> str:
+    """Course page for layout = "tracks": one card per track (unit) instead of the unit list."""
+    root = "../../"
+    n = len(c.lessons)
+    total = c.planned_total
+    cards = []
+    for k, u in enumerate(c.units):
+        written, planned = len(u.lessons), len(u.items)
+        chip = (f'<span class="chip chip-live">{written} / {planned}</span>' if written
+                else '<span class="chip chip-soon"><span class="pulse"></span>Hazırlanır</span>')
+        meta = f"<span>{planned} dərs</span>" if planned > 1 else "<span>Bir səhifə</span>"
+        if written:
+            meta += f"<span>{fmt_minutes(track_minutes(u))}</span>"
+        cards.append(f'''<a class="course-card track-card" href="{track_target(u)}" style="--hue:{c.hue}; --i:{k}" data-tilt>
+  <span class="card-glow" aria-hidden="true"></span>
+  <span class="card-grid" aria-hidden="true"></span>
+  <div class="cc-top"><span class="cc-icon">{icon(u.icon)}</span>{chip}</div>
+  <div class="cc-body">
+    {f'<span class="cc-kicker">{e(u.kicker)}</span>' if u.kicker else ''}
+    <h3 class="cc-title">{e(u.title)}</h3>
+    <p class="cc-summary">{e(u.summary)}</p>
+  </div>
+  <div class="cc-foot">
+    <div class="cc-meta">{meta}</div>
+    <span class="cc-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+  </div>
+</a>''')
+    tags = "".join(f'<span class="tag">{e(t)}</span>' for t in c.tags)
+    sources = ""
+    if c.sources:
+        items = "".join(
+            f'<li>{f"<a href={chr(34)}{e(s["url"])}{chr(34)} target={chr(34)}_blank{chr(34)} rel={chr(34)}noopener{chr(34)}>{e(s["title"])}</a>" if s.get("url") else e(s["title"])}'
+            f'{f"<span>{e(s["note"])}</span>" if s.get("note") else ""}</li>' for s in c.sources)
+        sources = f'<div class="side-card track-sources" data-reveal><h3>Mənbələr</h3><ul class="source-list">{items}</ul></div>'
+    body = f'''
+<section class="course-hero" style="--hue:{c.hue}">
+  <div class="course-hero-bg" aria-hidden="true"><span class="ch-grid"></span><span class="ch-glow"></span><canvas data-circuit></canvas></div>
+  <div class="wrap course-hero-inner">
+    <nav class="crumbs" data-rise style="--d:0" aria-label="Yer"><a href="{root}index.html">Ana səhifə</a><span>/</span><a href="{root}index.html#courses">Fənlər</a><span>/</span><span aria-current="page">{e(c.title)}</span></nav>
+    <div class="ch-main">
+      <div class="ch-icon" data-rise style="--d:1">{icon(c.icon)}</div>
+      <div class="ch-copy">
+        <span class="eyebrow" data-rise style="--d:1">{e(c.kicker)}</span>
+        <h1 class="ch-title" data-rise style="--d:2">{e(c.title)}</h1>
+        <p class="ch-summary" data-rise style="--d:3">{e(c.summary)}</p>
+        <div class="cc-tags" data-rise style="--d:4">{tags}</div>
+      </div>
+      <div class="ch-progress" data-rise style="--d:3" data-progress-course="{c.slug}" data-total="{total}">
+        <svg viewBox="0 0 120 120" class="ring" aria-hidden="true"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" cx="60" cy="60" r="52" pathLength="100"/></svg>
+        <div class="ring-label"><span class="pct">0%</span><span>tamamlandı</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="wrap course-body is-tracks" style="--hue:{c.hue}" id="tracks">
+  <div class="section-head compact" data-reveal><span class="section-index">01</span><div><h2 class="section-title">Necə oxumaq istəyirsən?</h2>
+  <p class="section-lede">Hər seçimdə eyni mühazirələr var, fərq həcmdədir. İstədiyin vaxt bir mühazirənin başqa səviyyəsinə keçə bilərsən.</p></div></div>
+  <div class="track-grid">
+    {"".join(cards)}
+  </div>
+  {sources}
+</section>'''
+    return page(f"{c.title} · Qrup 596", body, 2, "page-course", c.summary)
+
+
+def track_page(c: Course, u: Unit) -> str:
+    """List page of one track: its lessons in order, plus links to the sibling tracks."""
+    root = "../../../"
+    rows = []
+    for j, (plan, l) in enumerate(u.items, 1):
+        if l:
+            rows.append(f'<li><a class="lesson-row" href="../{l.slug}/index.html" data-lesson="{l.key}">'
+                        f'<span class="lr-n">{j}</span><span class="lr-t">{e(l.title)}</span>'
+                        f'<span class="lr-m">{fmt_minutes(l.minutes)}</span><span class="lr-check" aria-hidden="true"></span></a></li>')
+        else:
+            rows.append(f'<li><div class="lesson-row is-planned"><span class="lr-n">{j}</span>'
+                        f'<span class="lr-t">{e(plan["title"])}</span>'
+                        f'<span class="lr-m">tezliklə</span><span class="lr-lock" aria-hidden="true"></span></div></li>')
+    switch = "".join(
+        f'<a class="level-pill{" is-current" if x is u else ""}" href="../{track_target(x)}"'
+        f'{" aria-current=" + chr(34) + "page" + chr(34) if x is u else ""}>{e(x.title)}</a>'
+        for x in c.units)
+    body = f'''
+<section class="course-hero track-hero" style="--hue:{c.hue}">
+  <div class="course-hero-bg" aria-hidden="true"><span class="ch-grid"></span><span class="ch-glow"></span></div>
+  <div class="wrap course-hero-inner">
+    <nav class="crumbs" data-rise style="--d:0" aria-label="Yer"><a href="{root}index.html">Ana səhifə</a><span>/</span><a href="../index.html">{e(c.title)}</a><span>/</span><span aria-current="page">{e(u.title)}</span></nav>
+    <div class="ch-main">
+      <div class="ch-icon" data-rise style="--d:1">{icon(u.icon)}</div>
+      <div class="ch-copy">
+        <span class="eyebrow" data-rise style="--d:1">{e(c.title)}{" · " + e(u.kicker) if u.kicker else ""}</span>
+        <h1 class="ch-title" data-rise style="--d:2">{e(u.title)}</h1>
+        <p class="ch-summary" data-rise style="--d:3">{e(u.summary)}</p>
+        <nav class="level-switch" data-rise style="--d:4" aria-label="Səviyyə">{switch}</nav>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="wrap course-body is-tracks" style="--hue:{c.hue}">
+  <div class="unit track-unit" data-reveal><ol class="lesson-list">{"".join(rows) or '<li class="lesson-empty">Bu bölmənin dərsləri hələ yazılmayıb.</li>'}</ol></div>
+</section>'''
+    return page(f"{u.title} · {c.title}", body, 3, "page-course", u.summary)
+
+
 def course_page(c: Course) -> str:
+    if c.layout == "tracks":
+        return tracks_course_page(c)
     root = "../../"
     n = len(c.lessons)
     total = c.planned_total
@@ -679,10 +815,31 @@ def lesson_page(l: Lesson) -> str:
     unit_label = f"Bölmə {unit_no}" if c.ordered else e(unit.title)
     eyebrow = (f"Bölmə {unit_no} · {e(unit.title)}" if c.ordered or not plan_kind
                else f"{LESSON_KINDS[plan_kind]} · {e(unit.title)}")
+    level_switch = ""
+    if c.layout == "tracks":
+        # prev/next and the sidebar stay inside the track; siblings at the same position form the level switch
+        lessons = unit.lessons
+        idx = lessons.index(l)
+        prev_l = lessons[idx - 1] if idx > 0 else None
+        next_l = lessons[idx + 1] if idx + 1 < len(lessons) else None
+        pos = next((j for j, (_, x) in enumerate(unit.items) if x is l), 0)
+        many = len(unit.items) > 1
+        unit_label = f'<a href="../{unit.id}/index.html">{e(unit.title)}</a>' if many else e(unit.title)
+        eyebrow = f"{e(unit.title)} · {pos + 1} / {len(unit.items)}" if many else e(unit.title)
+        pills = []
+        for x in c.units:
+            if x is unit:
+                pills.append(f'<span class="level-pill is-current" aria-current="page">{e(x.title)}</span>')
+            elif len(x.items) > 1 and pos < len(x.items) and x.items[pos][1] and many:
+                pills.append(f'<a class="level-pill" href="../{x.items[pos][1].slug}/index.html">{e(x.title)}</a>')
+            elif len(x.items) == 1 and x.items[0][1]:
+                pills.append(f'<a class="level-pill" href="../{x.items[0][1].slug}/index.html">{e(x.title)}</a>')
+        if len(pills) > 1:
+            level_switch = f'<nav class="level-switch" aria-label="Səviyyə"><span class="level-label">Səviyyə</span>{"".join(pills)}</nav>'
 
     nav_units = []
     for k, u in enumerate(c.units, 1):
-        if not u.items:
+        if not u.items or (c.layout == "tracks" and u is not unit):
             continue
         items = "".join(
             (f'<li><a href="../{x.slug}/index.html" data-lesson="{x.key}"{" aria-current=\"page\"" if x is l else ""}>'
@@ -696,7 +853,7 @@ def lesson_page(l: Lesson) -> str:
             else:
                 items += (f'<li><span class="ln-planned ln-exam"><span class="ln-check" aria-hidden="true"></span>'
                           f'<span>{e(u.exam["title"])}</span></span></li>')
-        nav_units.append(f'<div class="ln-unit"><span class="ln-unit-t"><span>{f"{k:02d}" if c.ordered else ""}</span>{e(u.title)}</span><ol>{items}</ol></div>')
+        nav_units.append(f'<div class="ln-unit"><span class="ln-unit-t"><span>{f"{k:02d}" if c.ordered and c.layout != "tracks" else ""}</span>{e(u.title)}</span><ol>{items}</ol></div>')
 
     toc = "".join(
         f'<li class="toc-l{h["level"]}"><a href="#{h["id"]}">{re.sub(r"<[^>]+>", "", h["html"])}</a></li>'
@@ -730,6 +887,7 @@ def lesson_page(l: Lesson) -> str:
         {objectives}
         <span class="lm lm-done" data-done-badge hidden>Tamamlandı</span>
       </div>
+      {level_switch}
     </header>
     <div class="prose" data-prose>
 {l.html}
@@ -839,6 +997,9 @@ def build() -> dict:
             write(f"courses/{c.slug}/{l.slug}/index.html", lesson_page(l))
             pages += 1
         for u in c.units:
+            if c.layout == "tracks" and track_target(u) == f"{u.id}/index.html":
+                write(f"courses/{c.slug}/{u.id}/index.html", track_page(c, u))
+                pages += 1
             if u.bank:
                 write(f"courses/{c.slug}/exams/{u.id}/index.html", exam_page(c, u))
                 pages += 1

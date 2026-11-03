@@ -1025,6 +1025,9 @@ body:not(.page-lesson) .read-progress { display: none; }
   .prevnext { grid-template-columns: 1fr; }
   .search-trigger span:not(.keys), .search-trigger .keys { display: none; }
   .search-trigger { padding: 0 11px; }
+  .method { grid-template-columns: 1fr; gap: 32px 0; }
+  .method-step { padding-right: 0; }
+  .match-score, .fc-count { white-space: nowrap; }
 }
 
 /* ------------------------------------------------------------ reduced motion */
@@ -1112,3 +1115,23 @@ html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="
 .exam-lessons a { color: var(--text-2); text-decoration: underline; text-underline-offset: 3px; }
 .lesson-row.is-exam:not(.is-planned) .lr-t { color: var(--text); }
 @media (max-width: 640px) { .exam-shell { width: calc(100% - 32px); } .exam-facts div { padding: 12px; } .exam-question { padding: 18px; } .exam-submit { align-items: stretch; flex-direction: column; } }
+
+/* ------------------------------------------------------------ tracks layout (parallel paths of one course) */
+.course-body.is-tracks { display: block; padding-top: 56px; }
+.track-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; perspective: 1400px; margin-top: 8px; }
+.track-card { min-height: 260px; }
+.track-card .cc-title { font-size: 2rem; }
+.track-sources { margin-top: 28px; max-width: 640px; }
+.track-hero .ch-main { grid-template-columns: auto 1fr; }
+.track-unit { max-width: 860px; }
+.track-unit .lesson-list { padding-top: 10px; }
+.level-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; }
+.level-label { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin-right: 4px; }
+.level-pill { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--text-2); font-size: 0.88rem; text-decoration: none; transition: border-color 0.2s, color 0.2s, background 0.2s; }
+.level-pill:hover { border-color: var(--acc-line); color: var(--text); }
+.level-pill.is-current { border-color: var(--acc); color: var(--acc); background: var(--acc-soft); }
+@media (max-width: 640px) {
+  .track-grid { grid-template-columns: 1fr; }
+  .track-card { min-height: 0; }
+  .track-hero .ch-main { grid-template-columns: 1fr; }
+}

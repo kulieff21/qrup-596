@@ -1,0 +1,136 @@
+title = "Akademik yazı"
+kicker = "Magistratura · Aralıq imtahanı"
+summary = "Müəllimin 7 mühazirəsi üç həcmdə: qısa, orta və uzun. İmtahanda 35 açıq sualdan hər kəsə 3 sual düşür, vaxt 1 saatdır; hər mühazirənin sonunda ona aid suallar və cavablar var."
+hue = 165
+icon = "book"
+order = 1
+tags = ["7 mühazirə", "35 sual", "Açıq tipli", "1 saat"]
+layout = "tracks"
+
+[[source]]
+title = "Mühazirələr 1–7, dos. Mətanət Əmrahova (2026–2027)"
+note = "Bütün dərslərin əsas mənbəyi."
+
+[[source]]
+title = "35 suallıq sual bankı"
+note = "Əvvəlki qrupun sualları; bu il eyni olmaya bilər, amma tip və mövzu bölgüsü eynidir (hər mühazirəyə 5 sual)."
+
+[[source]]
+title = "Qrup yoldaşlarının qeydləri"
+note = "Ehtimal olunan suallar siyahısı və Notion qeydləri; yalnız hansı sualların gələ biləcəyini seçmək üçün istifadə olunub."
+
+[[unit]]
+id = "qisa"
+title = "Qısa"
+kicker = "Az vaxtı olanlar üçün"
+icon = "lines-short"
+summary = "Hər mühazirənin ən vacib fikirləri yığcam və yadda qalan şəkildə. Yalnız mühazirədə olanlar; suallara qısa cavablar."
+
+  [[unit.lesson]]
+  id = "qisa-1"
+  title = "Akademik yazının mahiyyəti, əsas xüsusiyyətləri və elmi üslubun prinsipləri"
+
+  [[unit.lesson]]
+  id = "qisa-2"
+  title = "Akademik yazıda arqumentasiya, tənqidi təfəkkür və məntiqi ardıcıllıq"
+
+  [[unit.lesson]]
+  id = "qisa-3"
+  title = "Elmi esse, referat, tezis və xülasənin yazılma texnikası"
+
+  [[unit.lesson]]
+  id = "qisa-4"
+  title = "Elmi məqalənin strukturu və yazılma texnikası"
+
+  [[unit.lesson]]
+  id = "qisa-5"
+  title = "Yazı prosesinin təşkili: ideyaların yaradılması və mətnin strukturlaşdırılması"
+
+  [[unit.lesson]]
+  id = "qisa-6"
+  title = "Mənbələrlə iş: parafraz, ədəbiyyat icmalı və tənqidi təhlil"
+
+  [[unit.lesson]]
+  id = "qisa-7"
+  title = "İstinad sistemləri və biblioqrafiyanın tərtibi qaydaları"
+
+[[unit]]
+id = "orta"
+title = "Orta"
+kicker = "Əsas hazırlıq"
+icon = "lines-mid"
+summary = "Mühazirənin bütün əsas hissələri, izahlar və nümunələr. Suallara orta həcmli, düzgün qurulmuş cavablar."
+
+  [[unit.lesson]]
+  id = "orta-1"
+  title = "Akademik yazının mahiyyəti, əsas xüsusiyyətləri və elmi üslubun prinsipləri"
+
+  [[unit.lesson]]
+  id = "orta-2"
+  title = "Akademik yazıda arqumentasiya, tənqidi təfəkkür və məntiqi ardıcıllıq"
+
+  [[unit.lesson]]
+  id = "orta-3"
+  title = "Elmi esse, referat, tezis və xülasənin yazılma texnikası"
+
+  [[unit.lesson]]
+  id = "orta-4"
+  title = "Elmi məqalənin strukturu və yazılma texnikası"
+
+  [[unit.lesson]]
+  id = "orta-5"
+  title = "Yazı prosesinin təşkili: ideyaların yaradılması və mətnin strukturlaşdırılması"
+
+  [[unit.lesson]]
+  id = "orta-6"
+  title = "Mənbələrlə iş: parafraz, ədəbiyyat icmalı və tənqidi təhlil"
+
+  [[unit.lesson]]
+  id = "orta-7"
+  title = "İstinad sistemləri və biblioqrafiyanın tərtibi qaydaları"
+
+[[unit]]
+id = "uzun"
+title = "Uzun"
+kicker = "Dərin hazırlıq"
+icon = "lines-long"
+summary = "Mühazirə tam həcmdə, üstəlik cavabı gücləndirən əlavələr. Suallara imtahanda yazıla biləcək tam cavablar."
+
+  [[unit.lesson]]
+  id = "uzun-1"
+  title = "Akademik yazının mahiyyəti, əsas xüsusiyyətləri və elmi üslubun prinsipləri"
+
+  [[unit.lesson]]
+  id = "uzun-2"
+  title = "Akademik yazıda arqumentasiya, tənqidi təfəkkür və məntiqi ardıcıllıq"
+
+  [[unit.lesson]]
+  id = "uzun-3"
+  title = "Elmi esse, referat, tezis və xülasənin yazılma texnikası"
+
+  [[unit.lesson]]
+  id = "uzun-4"
+  title = "Elmi məqalənin strukturu və yazılma texnikası"
+
+  [[unit.lesson]]
+  id = "uzun-5"
+  title = "Yazı prosesinin təşkili: ideyaların yaradılması və mətnin strukturlaşdırılması"
+
+  [[unit.lesson]]
+  id = "uzun-6"
+  title = "Mənbələrlə iş: parafraz, ədəbiyyat icmalı və tənqidi təhlil"
+
+  [[unit.lesson]]
+  id = "uzun-7"
+  title = "İstinad sistemləri və biblioqrafiyanın tərtibi qaydaları"
+
+[[unit]]
+id = "terminler"
+title = "Terminlər"
+kicker = "Lüğət"
+icon = "glossary"
+summary = "Yeddi mühazirənin vacib terminləri qısa izahla, mühazirə sırası ilə."
+
+  [[unit.lesson]]
+  id = "terminler-lugeti"
+  title = "Akademik yazı terminləri"
