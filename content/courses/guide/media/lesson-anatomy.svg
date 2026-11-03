@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" font-family="Atkinson Hyperlegible Next, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#171d2a"/><stop offset="1" stop-color="#10141d"/></linearGradient>
+  </defs>
+  <rect width="960" height="440" rx="18" fill="#0d1118"/>
+  <rect x="24" y="24" width="912" height="36" rx="10" fill="#141925" stroke="#262d3b"/>
+  <circle cx="48" cy="42" r="6" fill="none" stroke="#e9e3d6" stroke-width="2"/><circle cx="62" cy="42" r="6" fill="none" stroke="#e9e3d6" stroke-width="2"/>
+  <rect x="780" y="33" width="140" height="18" rx="9" fill="#1b2130"/>
+  <rect x="24" y="76" width="200" height="340" rx="12" fill="url(#g)" stroke="#262d3b"/>
+  <text x="44" y="104" fill="#8f8a80" font-size="13" letter-spacing="1.5">DƏRSLƏR</text>
+  <rect x="44" y="120" width="160" height="6" rx="3" fill="#232a38"/><rect x="44" y="120" width="64" height="6" rx="3" fill="#f2b35b"/>
+  <g fill="#2a3242"><rect x="44" y="150" width="140" height="10" rx="5"/><rect x="44" y="176" width="120" height="10" rx="5"/><rect x="44" y="202" width="150" height="10" rx="5"/><rect x="44" y="228" width="110" height="10" rx="5"/></g>
+  <rect x="38" y="194" width="172" height="26" rx="8" fill="none" stroke="#f2b35b" stroke-opacity=".6"/>
+  <rect x="240" y="76" width="500" height="340" rx="12" fill="url(#g)" stroke="#262d3b"/>
+  <text x="264" y="112" fill="#e9e3d6" font-size="26" font-family="Fraunces, Georgia, serif">Dərs başlığı</text>
+  <g fill="#2a3242"><rect x="264" y="132" width="420" height="9" rx="4.5"/><rect x="264" y="150" width="380" height="9" rx="4.5"/></g>
+  <rect x="264" y="176" width="452" height="70" rx="10" fill="#1a1f2b" stroke="#5ad1e6" stroke-opacity=".45"/>
+  <rect x="264" y="176" width="4" height="70" rx="2" fill="#5ad1e6"/>
+  <text x="284" y="200" fill="#5ad1e6" font-size="13" letter-spacing="1">İMTAHANDA</text>
+  <g fill="#2a3242"><rect x="284" y="212" width="360" height="8" rx="4"/><rect x="284" y="228" width="300" height="8" rx="4"/></g>
+  <g><rect x="264" y="262" width="140" height="92" rx="10" fill="#1a1f2b" stroke="#262d3b"/><rect x="420" y="262" width="140" height="92" rx="10" fill="#1f2635" stroke="#f2b35b" stroke-opacity=".5"/><rect x="576" y="262" width="140" height="92" rx="10" fill="#1a1f2b" stroke="#262d3b"/>
+  <text x="334" y="314" fill="#8f8a80" font-size="14" text-anchor="middle">Kart</text><text x="490" y="314" fill="#f2b35b" font-size="14" text-anchor="middle">Sual</text><text x="646" y="314" fill="#8f8a80" font-size="14" text-anchor="middle">Uyğunlaşdır</text></g>
+  <g fill="#2a3242"><rect x="264" y="372" width="420" height="9" rx="4.5"/><rect x="264" y="390" width="340" height="9" rx="4.5"/></g>
+  <rect x="756" y="76" width="180" height="340" rx="12" fill="url(#g)" stroke="#262d3b"/>
+  <text x="776" y="104" fill="#8f8a80" font-size="13" letter-spacing="1.5">BU DƏRSDƏ</text>
+  <rect x="776" y="122" width="2" height="120" fill="#262d3b"/><rect x="776" y="146" width="2" height="24" fill="#f2b35b"/>
+  <g fill="#2a3242"><rect x="788" y="126" width="110" height="8" rx="4"/><rect x="788" y="176" width="90" height="8" rx="4"/><rect x="800" y="200" width="80" height="8" rx="4"/><rect x="788" y="224" width="120" height="8" rx="4"/></g>
+  <rect x="788" y="152" width="120" height="8" rx="4" fill="#e9e3d6" fill-opacity=".8"/>
+  <text x="124" y="400" fill="#8f8a80" font-size="14" text-anchor="middle">1 · naviqasiya</text>
+  <text x="490" y="438" fill="#8f8a80" font-size="14" text-anchor="middle"></text>
+  <text x="846" y="400" fill="#8f8a80" font-size="14" text-anchor="middle">3 · başlıq xəritəsi</text>
+</svg>

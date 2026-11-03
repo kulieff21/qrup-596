@@ -1,0 +1,12 @@
+title = "Komponent bələdçisi"
+kicker = "Komponentlər"
+summary = "Bir dərsin istifadə edə biləcəyi bütün hissələr bir səhifədə. Dərs yazan hər kəs üçün canlı nümunə."
+hue = 38
+icon = "compass"
+order = 999
+hidden = true
+
+[[unit]]
+id = "authoring"
+title = "Dərs yazımı"
+summary = "Markdown, direktivlər və interaktiv komponentlər."
