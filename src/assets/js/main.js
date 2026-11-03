@@ -239,6 +239,99 @@
     setTimeout(blink, 3200);
   }
 
+  /* ---------------------------------------------------------------- bus rig: the hero bus turns toward the pointer */
+  // Same projection as tools/bus.py: an orthographic camera whose yaw/elevation follow the pointer
+  // on a spring. With no pointer for a while (or on touch screens) the bus looks around by itself.
+
+  function busRig() {
+    const svg = $("[data-bus]");
+    if (!svg || !motionOn()) return;
+    const [L, W, H, yaw0, elev0, yMin, yMax, eMin, eMax] = svg.dataset.bus.split(" ").map(Number);
+    const q = (sel) => svg.querySelector(sel);
+    const side = q(".bus-side"), front = q(".bus-front"), roof = q(".bus-roof");
+    const sideG = q(".bus-side-g"), frontG = q(".bus-front-g"), shadow = q(".bus-shadow"), rig = q(".bus-rig");
+    const rad = Math.PI / 180;
+    const cur = { yaw: yaw0, elev: elev0, lean: 0 }, vel = { yaw: 0, elev: 0, lean: 0 };
+    const goal = { yaw: yaw0, elev: elev0, lean: 0 };
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const f = (n) => n.toFixed(2);
+    let lastMove = -1e9, lastX = null, lastT = 0, hopAt = -1e9, running = false, prev = 0;
+
+    function draw(hop) {
+      const t = cur.yaw * rad, e = cur.elev * rad, s = Math.sin(e);
+      const U = [Math.cos(t), -Math.sin(t) * s];
+      const V = [Math.cos(t - Math.PI / 2), -Math.sin(t - Math.PI / 2) * s];
+      const Y = [0, -Math.cos(e)];
+      const ox = -(L / 2 * U[0] + W / 2 * V[0] + H / 2 * Y[0]);
+      const oy = -(L / 2 * U[1] + W / 2 * V[1] + H / 2 * Y[1]);
+      const P = (x, z, y) => [ox + x * U[0] + z * V[0] + y * Y[0], oy + x * U[1] + z * V[1] + y * Y[1]];
+      const pts = (...a) => a.map((p) => f(p[0]) + "," + f(p[1])).join(" ");
+      const mat = (o, ex, ey) => `matrix(${f(ex[0])} ${f(ex[1])} ${f(ey[0])} ${f(ey[1])} ${f(o[0])} ${f(o[1])})`;
+      const down = [-Y[0], -Y[1]];
+      side.setAttribute("points", pts(P(0, 0, 0), P(L, 0, 0), P(L, 0, H), P(0, 0, H)));
+      front.setAttribute("points", pts(P(0, 0, 0), P(0, W, 0), P(0, W, H), P(0, 0, H)));
+      roof.setAttribute("points", pts(P(0, 0, H), P(0, W, H), P(L, W, H), P(L, 0, H)));
+      sideG.setAttribute("transform", mat(P(L, 0, H), [-U[0], -U[1]], down));
+      frontG.setAttribute("transform", mat(P(0, 0, H), V, down));
+      const g = P(L / 2, W / 2, 0);
+      shadow.setAttribute("cx", f(g[0]));
+      shadow.setAttribute("rx", f(L * 0.62 - hop * 1.5));
+      rig.setAttribute("transform", `translate(0 ${f(-hop)}) rotate(${f(cur.lean)} ${f(g[0])} ${f(g[1])})`);
+    }
+
+    function frame(now) {
+      if (!running) return;
+      const dt = Math.min(0.033, (now - prev) / 1000 || 0.016);
+      prev = now;
+      if (now - lastMove > 3500) {             // idle: look around slowly
+        const k = now / 1000;
+        goal.yaw = yaw0 + Math.sin(k * 0.45) * 16 + Math.sin(k * 0.17) * 6;
+        goal.elev = elev0 + Math.sin(k * 0.31) * 4;
+      }
+      goal.lean *= Math.pow(0.02, dt);          // lean fades out in about a second
+      for (const key of ["yaw", "elev", "lean"]) {
+        const acc = (goal[key] - cur[key]) * 70 - vel[key] * 13;
+        vel[key] += acc * dt;
+        cur[key] += vel[key] * dt;
+      }
+      cur.yaw = clamp(cur.yaw, yMin, yMax);
+      cur.elev = clamp(cur.elev, eMin, eMax);
+      const p = (now - hopAt) / 520;
+      draw(p >= 0 && p < 1 ? Math.sin(Math.PI * p) * 16 : 0);
+      requestAnimationFrame(frame);
+    }
+
+    function start() {
+      if (running || document.hidden || !motionOn()) return;
+      running = true;
+      prev = performance.now();
+      requestAnimationFrame(frame);
+    }
+
+    document.addEventListener("pointermove", (e) => {
+      if (!motionOn()) return;
+      const r = svg.getBoundingClientRect();
+      const nx = clamp((e.clientX - (r.left + r.width / 2)) / (innerWidth * 0.45), -1, 1);
+      const ny = clamp((e.clientY - (r.top + r.height / 2)) / (innerHeight * 0.45), -1, 1);
+      goal.yaw = yaw0 + nx * (nx > 0 ? yMax - yaw0 : yaw0 - yMin);
+      goal.elev = elev0 + ny * (ny > 0 ? eMax - elev0 : elev0 - eMin);
+      if (lastX !== null && e.timeStamp > lastT) {
+        const vx = (e.clientX - lastX) / (e.timeStamp - lastT);   // px per ms
+        goal.lean = clamp(goal.lean + vx * 1.6, -6, 6);
+      }
+      lastX = e.clientX; lastT = e.timeStamp; lastMove = performance.now();
+    });
+    svg.addEventListener("click", () => {
+      if (!motionOn()) return;
+      hopAt = performance.now();
+      svg.classList.remove("bus-honk");
+      void svg.getBoundingClientRect();
+      svg.classList.add("bus-honk");
+    });
+    new IntersectionObserver(([en]) => { if (en.isIntersecting) start(); else running = false; }).observe(svg);
+    document.addEventListener("visibilitychange", () => { if (document.hidden) running = false; else start(); });
+  }
+
   /* ---------------------------------------------------------------- count up */
 
   function countUp(el, to) {
@@ -745,6 +838,7 @@
   const circuitCanvas = $("[data-circuit]");
   if (circuitCanvas) circuit(circuitCanvas);
   owls();
+  busRig();
   cards();
   $$("[data-count]").forEach((el) => {
     const io = new IntersectionObserver(([en]) => {

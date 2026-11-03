@@ -3,33 +3,53 @@
     python3 tools/bus.py            # writes a preview to bus-preview.html (not committed)
 
 Two marks:
-- bus_big(): the hero bus, a 3/4 axonometric view. Faces are drawn in their own flat 2D
-  coordinates and mapped onto the box with an affine matrix, so the eyes, the 596 sign and the
-  lights sit on the front face in perspective, and the pupils move in that face's plane.
+- bus_big(): the hero bus, a 3D box seen through an orthographic camera. Faces are drawn in
+  their own flat 2D coordinates and mapped onto the box with affine matrices, so the eyes, the
+  596 sign and the lights sit on the front face in perspective. The same projection runs live
+  in main.js (busRig): the bus turns toward the pointer by changing the camera yaw/elevation.
+  Python renders the rest pose, so the page looks right without JS or with motion off.
 - bus_small(): a flat front view for the header, footer, empty states and the favicon.
 
-Both keep the owl's contract with main.js: an element with [data-owl] (its value = max pupil
-travel in user units), a `.owl-pupils` group that follows the pointer and `.owl-lids` that blink.
+Both keep the eye contract with main.js: [data-owl] (value = max pupil travel in user units),
+a `.owl-pupils` group that follows the pointer and `.owl-lids` that blink.
+
+Projection (must match busRig in main.js):
+    U (one unit toward the back)  = (cos t, -sin t * sin e)
+    V (one unit across the front) = (cos(t - 90°), -sin(t - 90°) * sin e)
+    Y (one unit up)               = (0, -cos e)
+    screen(x, z, y) = O + x*U + z*V + y*Y, with O chosen so the box centre lands on CENTER.
+The left side and the front stay visible for 90° < t < 180°.
 """
 from __future__ import annotations
 
-# ---------------------------------------------------------------- 3D box -> screen
-# axes in screen units: back along the bus (left, up), across the front (right, up), up
-U = (-0.80, -0.22)     # one unit of length toward the back
-V = (0.96, -0.17)      # one unit of width, left -> right across the front
-Y = (0.0, -1.0)        # one unit of height
+import math
 
-L, W, H = 200, 104, 116          # bus length, width, height (stylised: a bit short and tall, friendly)
-ORIGIN = (150, 236)              # screen position of the front-left-bottom corner
+L, W, H = 220, 135, 116            # length, width, height (stylised: short, wide, tall = friendly)
+YAW, ELEV = 135.0, 14.5            # rest pose, degrees
+YAW_RANGE, ELEV_RANGE = (104.0, 166.0), (4.0, 28.0)   # what busRig may reach
+CENTER = (0.0, 0.0)                # screen position of the box centre (viewBox is built around it)
 
 
-def P(x: float, z: float, y: float) -> tuple[float, float]:
-    """3D point (x back, z across, y up) -> screen."""
-    return (ORIGIN[0] + x * U[0] + z * V[0] + y * Y[0],
-            ORIGIN[1] + x * U[1] + z * V[1] + y * Y[1])
+def axes(t: float, e: float):
+    t, e = math.radians(t), math.radians(e)
+    s = math.sin(e)
+    U = (math.cos(t), -math.sin(t) * s)
+    V = (math.cos(t - math.pi / 2), -math.sin(t - math.pi / 2) * s)
+    Y = (0.0, -math.cos(e))
+    return U, V, Y
 
 
-def poly(*pts) -> str:
+def projector(t: float, e: float):
+    U, V, Y = axes(t, e)
+    ox = CENTER[0] - (L / 2 * U[0] + W / 2 * V[0] + H / 2 * Y[0])
+    oy = CENTER[1] - (L / 2 * U[1] + W / 2 * V[1] + H / 2 * Y[1])
+
+    def P(x, z, y):
+        return (ox + x * U[0] + z * V[0] + y * Y[0], oy + x * U[1] + z * V[1] + y * Y[1])
+    return P, U, V, Y
+
+
+def poly(pts) -> str:
     return " ".join(f"{a:.1f},{b:.1f}" for a, b in pts)
 
 
@@ -38,66 +58,79 @@ def matrix(o, ex, ey) -> str:
     return f"matrix({ex[0]:.4f} {ex[1]:.4f} {ey[0]:.4f} {ey[1]:.4f} {o[0]:.2f} {o[1]:.2f})"
 
 
-# front face: local x = 0..W (left -> right), local y = 0..H (top -> bottom)
-FRONT = matrix(P(0, 0, H), V, (-Y[0], -Y[1]))
-# left side face: local x = 0..L (back -> front), local y = 0..H (top -> bottom)
-SIDE = matrix(P(L, 0, H), (-U[0], -U[1]), (-Y[0], -Y[1]))
+def pose(t: float = YAW, e: float = ELEV) -> dict:
+    """Everything that changes with the camera: face outlines and face matrices."""
+    P, U, V, Y = projector(t, e)
+    down = (-Y[0], -Y[1])
+    return {
+        "side": poly([P(0, 0, 0), P(L, 0, 0), P(L, 0, H), P(0, 0, H)]),
+        "front": poly([P(0, 0, 0), P(0, W, 0), P(0, W, H), P(0, 0, H)]),
+        "roof": poly([P(0, 0, H), P(0, W, H), P(L, W, H), P(L, 0, H)]),
+        "side_m": matrix(P(L, 0, H), (-U[0], -U[1]), down),    # local x: back -> front
+        "front_m": matrix(P(0, 0, H), V, down),                 # local x: left -> right
+        "shadow": P(L / 2, W / 2, 0),
+    }
+
+
+def viewbox(pad: float = 30) -> str:
+    """Fixed viewBox that holds the bus in every reachable pose, so turning never rescales it."""
+    xs, ys = [], []
+    for t in range(int(YAW_RANGE[0]), int(YAW_RANGE[1]) + 1, 2):
+        for e in range(int(ELEV_RANGE[0]), int(ELEV_RANGE[1]) + 1, 2):
+            P, *_ = projector(t, e)
+            for x in (0, L):
+                for z in (0, W):
+                    for y in (0, H):
+                        px, py = P(x, z, y)
+                        xs.append(px); ys.append(py)
+    w = max(xs) - min(xs) + 2 * pad
+    h = max(ys) - min(ys) + 2 * pad + 20
+    return f"{min(xs) - pad:.0f} {min(ys) - pad:.0f} {w:.0f} {h:.0f}"
 
 
 def bus_big(cls: str = "bus-big") -> str:
-    r = 10  # corner rounding on the face drawings
-    side_face = poly(P(0, 0, 0), P(L, 0, 0), P(L, 0, H), P(0, 0, H))
-    front_face = poly(P(0, 0, 0), P(0, W, 0), P(0, W, H), P(0, 0, H))
-    roof = poly(P(0, 0, H), P(0, W, H), P(L, W, H), P(L, 0, H))
-
-    # side: windows, door, a stripe and the route number, all in side-local coords
-    door_x = L - 44                       # front door, just behind the front face
+    g = pose()
+    door_x = L - 46                       # front door, just behind the front face
     win = "".join(
-        f'<rect class="bus-glass" x="{x}" y="16" width="30" height="36" rx="5"/>'
-        for x in range(10, door_x - 34, 38))
-    wheel = lambda cx: (f'<g class="bus-wheel"><circle cx="{cx}" cy="{H}" r="17"/>'
-                        f'<circle class="bus-hub" cx="{cx}" cy="{H}" r="6"/></g>')
-    side = (f'<g transform="{SIDE}">'
+        f'<rect class="bus-glass" x="{x}" y="16" width="31" height="36" rx="5"/>'
+        for x in range(10, door_x - 34, 39))
+    wheel = lambda cx: (f'<g class="bus-wheel"><circle cx="{cx}" cy="{H}" r="18"/>'
+                        f'<circle class="bus-hub" cx="{cx}" cy="{H}" r="6.5"/></g>')
+    side = (f'<g class="bus-side-g" transform="{g["side_m"]}">'
             f'<path class="bus-roof-rim" d="M4 6H{L - 4}"/>'
             f'{win}'
-            f'<rect class="bus-door" x="{door_x}" y="16" width="32" height="84" rx="5"/>'
-            f'<path class="bus-door-line" d="M{door_x + 16} 20v76"/>'
+            f'<rect class="bus-door" x="{door_x}" y="16" width="33" height="84" rx="5"/>'
+            f'<path class="bus-door-line" d="M{door_x + 16.5} 20v76"/>'
             f'<path class="bus-stripe" d="M8 66H{door_x - 10}"/>'
             f'<text class="bus-side-num" x="{(door_x - 4) / 2:.0f}" y="94" text-anchor="middle">596</text>'
-            f'{wheel(44)}{wheel(L - 70)}'
+            f'{wheel(46)}{wheel(L - 74)}'
             f'</g>')
-
-    # front: route sign with 596, windshield holding the eyes, lights and bumper
-    eye_y = 47
-    eyes_x = (30, 74)
-    rings = "".join(f'<circle class="owl-eye bus-eye" cx="{x}" cy="{eye_y}" r="15.5"/>' for x in eyes_x)
-    pupils = "".join(f'<circle class="owl-pupil" cx="{x}" cy="{eye_y + 1}" r="6.4"/>'
-                     f'<circle class="bus-glint" cx="{x + 2.4}" cy="{eye_y - 1.8}" r="1.7"/>' for x in eyes_x)
-    front = (f'<g transform="{FRONT}">'
-             f'<rect class="bus-sign" x="14" y="5" width="76" height="20" rx="4"/>'
-             f'<text class="bus-sign-num" x="52" y="21" text-anchor="middle">596</text>'
-             f'<rect class="bus-windshield" x="8" y="29" width="88" height="38" rx="{r}"/>'
+    # front face drawing, local coords 0..W x 0..H
+    m = W / 2
+    eye_y, eyes_x = 48, (m - 27, m + 27)
+    rings = "".join(f'<circle class="owl-eye bus-eye" cx="{x}" cy="{eye_y}" r="18"/>' for x in eyes_x)
+    pupils = "".join(f'<circle class="owl-pupil" cx="{x}" cy="{eye_y + 1}" r="7.4"/>'
+                     f'<circle class="bus-glint" cx="{x + 2.8}" cy="{eye_y - 2}" r="2"/>' for x in eyes_x)
+    front = (f'<g class="bus-front-g" transform="{g["front_m"]}">'
+             f'<rect class="bus-sign" x="{m - 46}" y="5" width="92" height="21" rx="4"/>'
+             f'<text class="bus-sign-num" x="{m}" y="21.5" text-anchor="middle">596</text>'
+             f'<rect class="bus-windshield" x="10" y="29" width="{W - 20}" height="40" rx="10"/>'
              f'<g class="owl-lids">{rings}</g>'
              f'<g class="owl-pupils">{pupils}</g>'
-             f'<path class="bus-smile" d="M42 80q10 6 20 0"/>'
-             f'<circle class="bus-light" cx="17" cy="84" r="6"/><circle class="bus-light" cx="87" cy="84" r="6"/>'
-             f'<rect class="bus-bumper" x="6" y="96" width="92" height="10" rx="4"/>'
+             f'<path class="bus-smile" d="M{m - 11} 81q11 6.5 22 0"/>'
+             f'<circle class="bus-light" cx="22" cy="85" r="7"/><circle class="bus-light" cx="{W - 22}" cy="85" r="7"/>'
+             f'<rect class="bus-bumper" x="8" y="97" width="{W - 16}" height="10" rx="4"/>'
              f'</g>')
-
-    # front wheels peek out under the front corners (on the side plane, at the front)
-    xs = [p[0] for p in (P(0, 0, 0), P(L, 0, 0), P(L, 0, H), P(0, W, H), P(0, W, 0), P(L, W, H))]
-    ys = [p[1] for p in (P(0, 0, 0), P(L, 0, 0), P(L, 0, H), P(0, W, H), P(0, W, 0), P(L, W, H))]
-    pad = 26
-    vb = f"{min(xs) - pad:.0f} {min(ys) - pad:.0f} {max(xs) - min(xs) + 2 * pad:.0f} {max(ys) - min(ys) + 2 * pad + 12:.0f}"
-    shadow_c = P(L / 2, W / 2, 0)
-    return (f'<svg class="{cls}" data-owl="5.5" viewBox="{vb}" fill="none" aria-hidden="true">'
-            f'<ellipse class="bus-shadow" cx="{shadow_c[0]:.1f}" cy="{shadow_c[1] + 14:.1f}" rx="{L * 0.78:.0f}" ry="22"/>'
-            f'<g class="bus-body">'
-            f'<polygon class="bus-side" points="{side_face}"/>'
-            f'<polygon class="bus-roof" points="{roof}"/>'
-            f'<polygon class="bus-front" points="{front_face}"/>'
+    sx, sy = g["shadow"]
+    data = f'{L} {W} {H} {YAW} {ELEV} {YAW_RANGE[0]} {YAW_RANGE[1]} {ELEV_RANGE[0]} {ELEV_RANGE[1]}'
+    return (f'<svg class="{cls}" data-owl="4" data-bus="{data}" viewBox="{viewbox()}" fill="none" aria-hidden="true">'
+            f'<ellipse class="bus-shadow" cx="{sx:.1f}" cy="{sy + 16:.1f}" rx="{L * 0.62:.0f}" ry="24"/>'
+            f'<g class="bus-rig"><g class="bus-body">'
+            f'<polygon class="bus-side" points="{g["side"]}"/>'
+            f'<polygon class="bus-roof" points="{g["roof"]}"/>'
+            f'<polygon class="bus-front" points="{g["front"]}"/>'
             f'{side}{front}'
-            f'</g></svg>')
+            f'</g></g></svg>')
 
 
 def bus_small(cls: str = "logo-mark", eyes: bool = False) -> str:

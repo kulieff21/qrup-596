@@ -389,6 +389,10 @@ body:not(.page-lesson) .read-progress { display: none; }
 .bus-big .bus-wheel .bus-hub { fill: #5b6475; }
 .bus-big .bus-shadow { fill: rgba(0, 0, 0, 0.45); filter: blur(6px); }
 .bus-big .bus-body { animation: bus-idle 2.8s var(--ease-in-out) infinite; }
+.bus-big[data-bus] { cursor: pointer; }
+.bus-big .bus-light { transition: fill 0.2s; }
+.bus-honk .bus-light { animation: honk 0.6s steps(2, jump-none) 2; }
+@keyframes honk { 50% { fill: #fffbe8; filter: drop-shadow(0 0 6px #ffe7a8) drop-shadow(0 0 14px #ffd08a); } }
 @keyframes bus-idle { 50% { transform: translateY(-2.5px); } }
 .js .bus-big { opacity: 0; transform: translateX(-60px); }
 .is-ready .bus-big { animation: bus-arrive 1.4s var(--ease-out) 0.3s forwards; }
