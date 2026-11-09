@@ -1,0 +1,279 @@
+title = "Şəbəkə və informasiya sistemlərinin təhlükəsizliyi"
+kicker = "Magistratura · Aralıq imtahanı"
+summary = "14 mühazirə üç həcmdə: qısa, orta və uzun. Qısa versiyalar da heç bir anlayışı atmır, hamısını ən qısa formada verir. Hər mövzunun sual səhifəsi və situasiya suallarına cavab strategiyası ayrıca."
+hue = 222
+icon = "shield"
+order = 2
+tags = ["14 mühazirə", "Situasiya sualları", "Aralıq imtahanı"]
+layout = "tracks"
+
+[[source]]
+title = "Mühazirə mətnləri 1–14 (2026–2027)"
+note = "Bütün dərslərin əsas mənbəyi. Elmar Cabbarov müəllimin tapşırığı ilə hazırlayıb."
+
+[[source]]
+title = "Midterm konspekti və situasiya sualları"
+note = "Elmar Cabbarov. \"Tələ\" və \"Yadda saxla\" qeydləri, situasiya sualları və cavab strategiyası buradan götürülüb."
+
+[[unit]]
+id = "qisa"
+title = "Qısa"
+kicker = "Təxminən 10 dəqiqə"
+icon = "lines-short"
+summary = "Hər mühazirə təxminən 10 dəqiqəyə (ən çoxu 15). Heç bir anlayış atılmır: hamısı ən qısa formada, bir-iki cümlə ilə."
+
+  [[unit.lesson]]
+  id = "qisa-1"
+  title = "Şəbəkə təhlükəsizliyinin əsasları: CIA və DAD triadası"
+
+  [[unit.lesson]]
+  id = "qisa-2"
+  title = "Kibertəhlükəsizlik təhdidləri; təhdid məlumatları və analitikası"
+
+  [[unit.lesson]]
+  id = "qisa-3"
+  title = "Girişə nəzarət prinsipləri və modelləri; identifikasiya və giriş idarəetməsi (IAM)"
+
+  [[unit.lesson]]
+  id = "qisa-4"
+  title = "Təhlükəsizlik tədbirləri və şəbəkə təhlükəsizliyi protokolları"
+
+  [[unit.lesson]]
+  id = "qisa-5"
+  title = "Kibermüdafiə modelləri"
+
+  [[unit.lesson]]
+  id = "qisa-6"
+  title = "Seqmentasiya, şəbəkələrarası ekranlar və IDS/IPS"
+
+  [[unit.lesson]]
+  id = "qisa-7"
+  title = "Tələ sistemləri, proksi-serverlər və virtual özəl şəbəkələr (VPN)"
+
+  [[unit.lesson]]
+  id = "qisa-8"
+  title = "Simsiz şəbəkələrin əsasları və şifrələmə mexanizmləri"
+
+  [[unit.lesson]]
+  id = "qisa-9"
+  title = "Simsiz autentifikasiya və simsiz rabitənin təhlükəsizliyi"
+
+  [[unit.lesson]]
+  id = "qisa-10"
+  title = "Zərərli proqram təminatı və kompromitasiya indikatorları (IoC)"
+
+  [[unit.lesson]]
+  id = "qisa-11"
+  title = "Son qurğuların təhlükəsizliyi və sistemlərin mühafizəsinin gücləndirilməsi"
+
+  [[unit.lesson]]
+  id = "qisa-12"
+  title = "SIEM və istifadəçi davranışlarının təhlili (UEBA)"
+
+  [[unit.lesson]]
+  id = "qisa-13"
+  title = "Virtuallaşdırmanın əsasları və təhlükəsizliyi"
+
+  [[unit.lesson]]
+  id = "qisa-14"
+  title = "Bulud hesablamalarının əsasları və bulud təhlükəsizliyi"
+
+[[unit]]
+id = "orta"
+title = "Orta"
+kicker = "Ən çoxu 20 dəqiqə"
+icon = "lines-mid"
+summary = "Hər mühazirənin bütün anlayışları izahla, cədvəl və nümunələrlə; 20 dəqiqəyə sığan əsas hazırlıq."
+
+  [[unit.lesson]]
+  id = "orta-1"
+  title = "Şəbəkə təhlükəsizliyinin əsasları: CIA və DAD triadası"
+
+  [[unit.lesson]]
+  id = "orta-2"
+  title = "Kibertəhlükəsizlik təhdidləri; təhdid məlumatları və analitikası"
+
+  [[unit.lesson]]
+  id = "orta-3"
+  title = "Girişə nəzarət prinsipləri və modelləri; identifikasiya və giriş idarəetməsi (IAM)"
+
+  [[unit.lesson]]
+  id = "orta-4"
+  title = "Təhlükəsizlik tədbirləri və şəbəkə təhlükəsizliyi protokolları"
+
+  [[unit.lesson]]
+  id = "orta-5"
+  title = "Kibermüdafiə modelləri"
+
+  [[unit.lesson]]
+  id = "orta-6"
+  title = "Seqmentasiya, şəbəkələrarası ekranlar və IDS/IPS"
+
+  [[unit.lesson]]
+  id = "orta-7"
+  title = "Tələ sistemləri, proksi-serverlər və virtual özəl şəbəkələr (VPN)"
+
+  [[unit.lesson]]
+  id = "orta-8"
+  title = "Simsiz şəbəkələrin əsasları və şifrələmə mexanizmləri"
+
+  [[unit.lesson]]
+  id = "orta-9"
+  title = "Simsiz autentifikasiya və simsiz rabitənin təhlükəsizliyi"
+
+  [[unit.lesson]]
+  id = "orta-10"
+  title = "Zərərli proqram təminatı və kompromitasiya indikatorları (IoC)"
+
+  [[unit.lesson]]
+  id = "orta-11"
+  title = "Son qurğuların təhlükəsizliyi və sistemlərin mühafizəsinin gücləndirilməsi"
+
+  [[unit.lesson]]
+  id = "orta-12"
+  title = "SIEM və istifadəçi davranışlarının təhlili (UEBA)"
+
+  [[unit.lesson]]
+  id = "orta-13"
+  title = "Virtuallaşdırmanın əsasları və təhlükəsizliyi"
+
+  [[unit.lesson]]
+  id = "orta-14"
+  title = "Bulud hesablamalarının əsasları və bulud təhlükəsizliyi"
+
+[[unit]]
+id = "uzun"
+title = "Uzun"
+kicker = "30–50 dəqiqə"
+icon = "lines-long"
+summary = "Mühazirə tam həcmdə: bütün anlayışlar, rəqəmlər, standartlar və işlənmiş nümunələr."
+
+  [[unit.lesson]]
+  id = "uzun-1"
+  title = "Şəbəkə təhlükəsizliyinin əsasları: CIA və DAD triadası"
+
+  [[unit.lesson]]
+  id = "uzun-2"
+  title = "Kibertəhlükəsizlik təhdidləri; təhdid məlumatları və analitikası"
+
+  [[unit.lesson]]
+  id = "uzun-3"
+  title = "Girişə nəzarət prinsipləri və modelləri; identifikasiya və giriş idarəetməsi (IAM)"
+
+  [[unit.lesson]]
+  id = "uzun-4"
+  title = "Təhlükəsizlik tədbirləri və şəbəkə təhlükəsizliyi protokolları"
+
+  [[unit.lesson]]
+  id = "uzun-5"
+  title = "Kibermüdafiə modelləri"
+
+  [[unit.lesson]]
+  id = "uzun-6"
+  title = "Seqmentasiya, şəbəkələrarası ekranlar və IDS/IPS"
+
+  [[unit.lesson]]
+  id = "uzun-7"
+  title = "Tələ sistemləri, proksi-serverlər və virtual özəl şəbəkələr (VPN)"
+
+  [[unit.lesson]]
+  id = "uzun-8"
+  title = "Simsiz şəbəkələrin əsasları və şifrələmə mexanizmləri"
+
+  [[unit.lesson]]
+  id = "uzun-9"
+  title = "Simsiz autentifikasiya və simsiz rabitənin təhlükəsizliyi"
+
+  [[unit.lesson]]
+  id = "uzun-10"
+  title = "Zərərli proqram təminatı və kompromitasiya indikatorları (IoC)"
+
+  [[unit.lesson]]
+  id = "uzun-11"
+  title = "Son qurğuların təhlükəsizliyi və sistemlərin mühafizəsinin gücləndirilməsi"
+
+  [[unit.lesson]]
+  id = "uzun-12"
+  title = "SIEM və istifadəçi davranışlarının təhlili (UEBA)"
+
+  [[unit.lesson]]
+  id = "uzun-13"
+  title = "Virtuallaşdırmanın əsasları və təhlükəsizliyi"
+
+  [[unit.lesson]]
+  id = "uzun-14"
+  title = "Bulud hesablamalarının əsasları və bulud təhlükəsizliyi"
+
+[[unit]]
+id = "suallar"
+title = "Suallar"
+kicker = "Hər mövzu üzrə"
+icon = "spark"
+summary = "Hər mühazirənin nəzarət sualları cavablarla, situasiya tapşırıqları və ehtimal olunan əlavə suallar."
+
+  [[unit.lesson]]
+  id = "suallar-1"
+  title = "Şəbəkə təhlükəsizliyinin əsasları: CIA və DAD triadası"
+
+  [[unit.lesson]]
+  id = "suallar-2"
+  title = "Kibertəhlükəsizlik təhdidləri; təhdid məlumatları və analitikası"
+
+  [[unit.lesson]]
+  id = "suallar-3"
+  title = "Girişə nəzarət prinsipləri və modelləri; identifikasiya və giriş idarəetməsi (IAM)"
+
+  [[unit.lesson]]
+  id = "suallar-4"
+  title = "Təhlükəsizlik tədbirləri və şəbəkə təhlükəsizliyi protokolları"
+
+  [[unit.lesson]]
+  id = "suallar-5"
+  title = "Kibermüdafiə modelləri"
+
+  [[unit.lesson]]
+  id = "suallar-6"
+  title = "Seqmentasiya, şəbəkələrarası ekranlar və IDS/IPS"
+
+  [[unit.lesson]]
+  id = "suallar-7"
+  title = "Tələ sistemləri, proksi-serverlər və virtual özəl şəbəkələr (VPN)"
+
+  [[unit.lesson]]
+  id = "suallar-8"
+  title = "Simsiz şəbəkələrin əsasları və şifrələmə mexanizmləri"
+
+  [[unit.lesson]]
+  id = "suallar-9"
+  title = "Simsiz autentifikasiya və simsiz rabitənin təhlükəsizliyi"
+
+  [[unit.lesson]]
+  id = "suallar-10"
+  title = "Zərərli proqram təminatı və kompromitasiya indikatorları (IoC)"
+
+  [[unit.lesson]]
+  id = "suallar-11"
+  title = "Son qurğuların təhlükəsizliyi və sistemlərin mühafizəsinin gücləndirilməsi"
+
+  [[unit.lesson]]
+  id = "suallar-12"
+  title = "SIEM və istifadəçi davranışlarının təhlili (UEBA)"
+
+  [[unit.lesson]]
+  id = "suallar-13"
+  title = "Virtuallaşdırmanın əsasları və təhlükəsizliyi"
+
+  [[unit.lesson]]
+  id = "suallar-14"
+  title = "Bulud hesablamalarının əsasları və bulud təhlükəsizliyi"
+
+[[unit]]
+id = "strategiya"
+title = "Strategiya"
+kicker = "İmtahan"
+icon = "compass"
+summary = "Situasiya sualına addım-addım cavab və bütün mövzuları qarışdıran situasiyalar."
+
+  [[unit.lesson]]
+  id = "imtahan-strategiyasi"
+  title = "Situasiya sualına necə cavab vermək"

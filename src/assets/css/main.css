@@ -777,7 +777,7 @@ body:not(.page-lesson) .read-progress { display: none; }
 .lm-done { color: var(--ok); background: var(--ok-soft); border-color: rgba(123, 215, 171, 0.3); }
 
 /* reading typography — calm on purpose */
-.prose { font-size: 1.125rem; line-height: 1.8; color: var(--reading); }
+.prose { font-size: 1.125rem; line-height: 1.8; color: var(--reading); overflow-wrap: break-word; }
 .prose > * + * { margin-top: 1.15em; }
 /* zero specificity: sibling spacing rules (.prose > * + *, .callout-body > * + *) must win */
 :where(.prose p) { margin: 0; }
